@@ -14,29 +14,24 @@ public class Player : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
-        
+    {   
         if (Input.GetKey(KeyCode.UpArrow))
         {
             Vector3 heading = transform.forward;
-            heading *= 0.1f;
-            transform.Translate(heading);
+            heading *= .1f;
+            transform.Translate(heading, Space.World);
         }
         if (Input.GetKey(KeyCode.DownArrow)) {
             Vector3 heading = transform.forward;
-            heading *= -0.1f;
-            transform.Translate(heading);
+            heading *= -.1f;
+            transform.Translate(heading, Space.World);
         }
        
         if (Input.GetKey(KeyCode.LeftArrow)) {
-            Vector3 left = Quaternion.AngleAxis(-90, Vector3.up) * transform.forward;
-            left *= 0.1f;
-            transform.Translate(left);
+            transform.Rotate(transform.up, -1f);
         }
         if (Input.GetKey(KeyCode.RightArrow)) {
-            Vector3 left = Quaternion.AngleAxis(-90, Vector3.up) * transform.forward;
-            left *= -0.1f;
-            transform.Translate(left);
+            transform.Rotate(transform.up, 1f);
         }
         if (Input.GetKey(KeyCode.Space)) {
             if (jumpFrames != jumpMax)
