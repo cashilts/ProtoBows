@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Player : MonoBehaviour
+public class Player : GenericObject
 {
     Rigidbody rb;
     private int jumpFrames = 0;
@@ -12,6 +12,7 @@ public class Player : MonoBehaviour
     void Start()
     {
         rb = gameObject.GetComponent<Rigidbody>();
+        isStick = false;
     }
 
     // Update is called once per frame
@@ -80,7 +81,7 @@ public class Player : MonoBehaviour
         {
             if (!arrowReady)
             {
-                newArrow = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Arrow"));
+                newArrow = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/BounceArrow"));
                 newArrow.transform.up = Camera.main.transform.forward;
                 newArrow.transform.position = Camera.main.transform.position;
                 newArrow.transform.Translate(transform.forward * 1, Space.World);
@@ -96,7 +97,7 @@ public class Player : MonoBehaviour
         }
         else {
             if (arrowReady) {
-                newArrow.GetComponent<Arrow>().Launch(newArrow.transform.up * 13);
+                newArrow.GetComponent<GenericArrow>().Launch(newArrow.transform.up * 15f);
                 arrowReady = false;
             }
         }
