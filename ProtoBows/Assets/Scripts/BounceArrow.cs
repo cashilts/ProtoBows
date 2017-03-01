@@ -10,26 +10,29 @@ public class BounceArrow : GenericArrow {
 	void Start () {
         rb = GetComponent<Rigidbody>();
         isStick = false;
+        decayTime = (int)(decayTime*0.75f);
     }
-	
-	// Update is called once per frame
-	void Update () {
 
-	}
+    public override void Update()
+    {
+        if (bounced) {
+            decayTime--;
+            if (decayTime == 0)
+            {
+                GameObject.Destroy(gameObject);
+            }
+        }
+    }
+
 
     void OnCollisionEnter(Collision collision) {
         if (collision.gameObject.GetComponent<GenericObject>().isStick)
         {
-            if (!bounced)
-            {
-                Vector3 impulse = collision.impulse;
-                rb.AddForce(impulse, ForceMode.Impulse);
-                bounced = true;
-            }
-            else
-            {
-                rb.isKinematic = true;
-            }
+            rb.freezeRotation = true;
+            gameObject.transform.up = collision.impulse;
+            Vector3 impulse = collision.impulse * 2;
+            rb.AddForce(impulse, ForceMode.Impulse);
+            bounced = true;
         }
     }
 }

@@ -7,6 +7,7 @@ public class Player : GenericObject
     private int jumpFrames = 0;
     private const int jumpMax = 5;
     private bool arrowReady = false;
+    public bool grappled = false;
     GameObject newArrow;
     // Use this for initialization
     void Start()
@@ -23,6 +24,11 @@ public class Player : GenericObject
             Vector3 heading = transform.forward;
             heading *= .1f * Input.GetAxisRaw("Vertical");
             transform.Translate(heading, Space.World);
+            if (grappled) {
+                grappled = false;
+                rb.velocity = Vector3.zero;
+                rb.useGravity = true;
+            }
         }   
         if (Input.GetAxisRaw("Horizontal") != 0){
             transform.Rotate(transform.up, 1f * Input.GetAxisRaw("Horizontal"));
@@ -32,7 +38,13 @@ public class Player : GenericObject
             {
                 jumpFrames++;
                 rb.AddForce(new Vector3(0, 1, 0), ForceMode.Impulse);
-               
+                rb.useGravity = true;
+                if (grappled)
+                {
+                    grappled = false;
+                    rb.velocity = Vector3.zero;
+                    rb.useGravity = true;
+                }
             }
         }
         if (Input.GetAxisRaw("Mouse X") != 0) {
@@ -76,38 +88,56 @@ public class Player : GenericObject
                 Camera.main.transform.forward = heading;
             }
         }
-        Debug.Log(Input.GetAxisRaw("Fire"));
         if (Input.GetAxisRaw("Fire") == 1 || Input.GetAxisRaw("Fire") == -1)
         {
             if (!arrowReady)
             {
-                newArrow = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/BounceArrow"));
+                newArrow = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/GrappleArrow"));
                 newArrow.transform.up = Camera.main.transform.forward;
                 newArrow.transform.position = Camera.main.transform.position;
                 newArrow.transform.Translate(transform.forward * 1, Space.World);
                 arrowReady = true;
             }
-            else
+            else if (!newArrow.GetComponent<GenericArrow>().launched)
             {
                 newArrow.transform.up = Camera.main.transform.forward;
                 newArrow.transform.position = Camera.main.transform.position;
                 newArrow.transform.Translate(transform.forward * 1, Space.World);
             }
+            else {
+                Debug.Log("Trigger");
+                newArrow.GetComponent<GenericArrow>().Trigger();
+            }
 
         }
         else {
-            if (arrowReady) {
+            if (arrowReady && !newArrow.GetComponent<GenericArrow>().launched)
+            {
                 newArrow.GetComponent<GenericArrow>().Launch(newArrow.transform.up * 15f);
+                if (!newArrow.GetComponent<GenericArrow>().triggerable)
+                {
+                    arrowReady = false;
+                }
+            }
+            else if (arrowReady && !newArrow.GetComponent<GenericArrow>().triggerable) {
                 arrowReady = false;
             }
         }
 
     }
 
-    void OnCollisionEnter(Collision collision) {
-        
-        if (collision.collider.name == "Cube") {
+    void OnTriggerEnter(Collider collision) {
+        if (collision.name == "Cube")
+        {
             jumpFrames = 0;
+            Vector3 newVelocity = rb.velocity;
+            newVelocity.y = 0;
+            rb.velocity = newVelocity;
+            rb.useGravity = false;
+        }
+        else if (collision.name.Contains("Grapple")) {
+            rb.velocity = Vector3.zero;
+            rb.useGravity = false;
         }
     }
 }

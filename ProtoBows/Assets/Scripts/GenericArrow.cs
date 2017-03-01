@@ -4,9 +4,10 @@ using System.Collections;
 public class GenericArrow : GenericObject {
 
     protected Rigidbody rb;
-    bool launched = false;
-    int decayTime = 100;
-
+    public bool triggerable = false;
+    public bool launched = false;
+    protected int decayTime = 100;
+    
 	// Use this for initialization
 	void Start () {
         rb = GetComponent<Rigidbody>();
@@ -14,14 +15,21 @@ public class GenericArrow : GenericObject {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public virtual void Update () {
+        
         if (rb.isKinematic) {
-            decayTime--;
-            if (decayTime == 0) {
-                GameObject.Destroy(gameObject);
+            if (!triggerable)
+            {
+                decayTime--;
+                if (decayTime == 0)
+                {
+                    GameObject.Destroy(gameObject);
+                }
             }
         }
 	}
+
+    public virtual void Trigger() { triggerable = false; }
 
     public void Launch(Vector3 force) {
         rb.AddForce(force, ForceMode.Impulse);
